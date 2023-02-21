@@ -55,8 +55,10 @@ lldp run
 !
 !
 {% for intf in interfaces.json.results %}
+{% if 'BDI' in intf["name"] %}
 interface {{ intf.name }}
-    {% endfor %}
+{% endif %}
+{% endfor %}
   no shutdown
 !
 !
