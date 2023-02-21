@@ -1,0 +1,4 @@
+plugin: netbox.netbox.nb_inventory
+api_endpoint: https://lab.binaryflows.com
+token: 01b35696629d1c1d62b2a6486862fa8e606d9db0
+validate_certs: False

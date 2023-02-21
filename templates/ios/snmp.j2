@@ -1,0 +1,47 @@
+{% for community in config_context["snmp"]["community"] %}
+snmp-server community {{ community["name"] }} {{ community["role"] }}
+{% endfor %}
+snmp-server location {{ config_context["snmp"]["location"] }}
+snmp-server contact {{ config_context["snmp"]["contact"] }}
+{% for host in config_context["snmp"]["host"] %}
+snmp-server host {{ host["ip"] }} version {{ host["version"] }} {{ host["community"] }} 
+{% endfor %}
+snmp-server group snmpv3group v3 priv access 35
+snmp-server trap-source SRCINTF
+snmp-server location XXX-XXX
+snmp-server ip dscp 41
+snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
+snmp-server enable traps tty
+snmp-server enable traps ospf state-change
+snmp-server enable traps ospf errors
+snmp-server enable traps ospf retransmit
+snmp-server enable traps ospf lsa
+snmp-server enable traps ospf cisco-specific state-change nssa-trans-change
+snmp-server enable traps ospf cisco-specific state-change shamlink interface
+snmp-server enable traps ospf cisco-specific state-change shamlink neighbor
+snmp-server enable traps ospf cisco-specific errors
+snmp-server enable traps ospf cisco-specific retransmit
+snmp-server enable traps ospf cisco-specific lsa
+snmp-server enable traps bgp
+snmp-server enable traps config-copy
+snmp-server enable traps config
+snmp-server enable traps hsrp
+snmp-server enable traps ipmulticast
+snmp-server enable traps msdp
+snmp-server enable traps pim neighbor-change rp-mapping-change invalid-pim-message
+snmp-server enable traps ipsla
+snmp-server enable traps bridge newroot topologychange
+snmp-server enable traps stpx inconsistency root-inconsistency loop-inconsistency
+snmp-server enable traps syslog
+snmp-server enable traps fru-ctrl
+snmp-server enable traps entity
+snmp-server enable traps cpu threshold
+snmp-server enable traps flash insertion
+snmp-server enable traps flash removal
+snmp-server enable traps rsvp
+snmp-server enable traps mpls ldp
+snmp-server enable traps mpls traffic-eng
+snmp-server enable traps l2tun session
+snmp-server enable traps mpls vpn
+snmp ifmib ifindex persist
+

@@ -1,0 +1,32 @@
+!
+line con 0
+ exec-timeout 0 0
+ login authentication CONSOLE
+ stopbits 1
+line aux 0
+ stopbits 1
+line vty 0 4
+ session-timeout 15
+ access-class 7 in vrf-also
+ exec-timeout 15 0
+ authorization commands 1 VTY
+ authorization commands 15 VTY
+ authorization exec VTY
+ logging synchronous
+ login authentication VTY
+ transport preferred ssh
+ transport input ssh
+ transport output ssh
+line vty 5 15
+ session-timeout 15
+ access-class 7 in vrf-also
+ exec-timeout 15 0
+ authorization commands 1 VTY
+ authorization commands 15 VTY
+ authorization exec VTY
+ logging synchronous
+ login authentication VTY
+ transport preferred ssh
+ transport input ssh
+ transport output ssh
+!

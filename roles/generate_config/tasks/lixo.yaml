@@ -1,0 +1,10 @@
+---
+- name: 1 - Get Devices
+  uri:
+      url: "{{ netbox_url }}api/dcim/devices/?name={{ inventory_hostname }}"
+      method: GET
+      return_content: yes
+      headers:
+          accept: "application/json"
+          Authorization: "Token {{ netbox_token }}"
+  register: device

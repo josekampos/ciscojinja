@@ -1,0 +1,16 @@
+!
+router ospf {{ obj.site.asn }}
+ router-id 1.1.1.1
+ auto-cost reference-bandwidth 10000
+ area 20 authentication message-digest
+ redistribute connected subnets
+ passive-interface Loopback0
+ network 100.0.0.120 0.0.0.0 area 20
+ network 100.0.4.126 0.0.0.0 area 20
+ network 100.0.4.129 0.0.0.0 area 20
+ mpls ldp sync
+!
+
+ 
+ 
+ 

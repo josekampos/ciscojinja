@@ -1,0 +1,50 @@
+---
+vlans:
+
+  - name: DATA
+    site: AUBRI01
+    status: reserved
+    tenant: Consulting
+    vid: 10
+    vlan_group: Brisbane_VLANS
+    vlan_role: Branch_Data
+
+  - name: VOICE
+    site: AUBRI01
+    status: reserved
+    tenant: Consulting
+    vid: 20
+    vlan_group: Brisbane_VLANS
+    vlan_role: Branch_Voice
+
+  - name: B_WIFI
+    site: AUBRI01
+    status: reserved
+    tenant: Consulting
+    vid: 30
+    vlan_group: Brisbane_VLANS
+    vlan_role: Branch_WiFi
+
+  - name: G_WIFI
+    site: AUBRI01
+    status: reserved
+    tenant: Consulting
+    vid: 40
+    vlan_group: Brisbane_VLANS
+    vlan_role: Guest_WiFi
+
+  - name: NETMAN
+    site: AUBRI01
+    status: reserved
+    tenant: Consulting
+    vid: 50
+    vlan_group: Brisbane_VLANS
+    vlan_role: Network_Management
+    
+  - name: P2P
+    site: AUBRI01
+    status: reserved
+    tenant: Consulting
+    vid: 60
+    vlan_group: Brisbane_VLANS
+    vlan_role: Point_to_Point

@@ -1,0 +1,16 @@
+{% for interface in interfaces %}
+{% if 'Loop' in interface["name"] %}
+{% include "./ios/_loopback.j2" %}
+{% endif %}
+{% endfor %}
+{% for interface in interfaces %}
+{% if 'BDI' in interface["name"] %}
+{% include "./ios/_bdi.j2" %}
+{% endif %}
+{% endfor %}
+{% for interface in interfaces %}
+{% if 'Loop' not in interface["name"] %}
+{% include "./ios/_physical.j2" %}
+{% endif %}
+{% endfor %}
+
