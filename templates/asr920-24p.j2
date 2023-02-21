@@ -55,11 +55,9 @@ lldp run
 !
 !
 {% for intf in interfaces.json.results %}
-{% if 'Loop' in intf["name"] %}
 interface {{ intf.name }}
   {% if intf.description %}
   description {{ intf.description }}
-  {% endif %}
     {% for ip in ip_addresses.json.results %}
       {% if ip.assigned_object.name == intf.name %}
   ip address {{ ip.address.split('/')[0] }} {{ ip.address | ansible.utils.ipaddr('netmask') }}
