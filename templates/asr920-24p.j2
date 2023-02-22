@@ -1,16 +1,10 @@
 #jinja2: lstrip_blocks: True
-no service pad
-service tcp-keepalives-in
-service tcp-keepalives-out
-service timestamps debug datetime msec localtime show-timezone year
-service timestamps log datetime msec localtime show-timezone year
-service password-encryption
-service linenumber
-service compress-config
-service sequence-numbers
-no platform punt-keepalive disable-kernel-core
+!
+{% include './ios_static/1-log-service.j2' %}
+!
 !
 hostname {{ device.json.results[0]['name'] }}
+!
 !
 boot-start-marker
 boot-end-marker
@@ -24,13 +18,8 @@ vrf definition Mgmt-intf
  address-family ipv6
  exit-address-family
 !
-security authentication failure rate 5 log
-logging count
-no logging message-counter syslog
-logging userinfo
-logging buffered notifications
 !
-aaa new-model
+{#% include './ios_static/2-aaa_clock.j2' %i#}
 !
 !
 !
@@ -38,9 +27,15 @@ aaa new-model
 ip vrf {{ vrf.name }}
  description {{ vrf.description }}
  rd {{ vrf.rd }}
- route-target export {{ vrf.export_targets[0]['name'] }}
+{% for export_target in vrf.export_targets %}
+ route-target export  {{ export_target['name'] }}
+{% endfor %}
+{% for import_target in vrf.import_targets %}
+ route-target import  {{ import_target['name'] }}
+{% endfor %}
 !
 {% endfor %}
+!
 !
 no ip bootp server
 !
@@ -55,12 +50,34 @@ lldp run
 !
 !
 {% for intf in interfaces.json.results %}
+{% if 'Loop' in intf["name"] %}
+interface {{ intf.name }}
+  {% if intf.description %}
+  description {{ intf.description }}
+  {% endif %}
+    {% for ip in ip_addresses.json.results %}
+      {% if ip.assigned_object.name == intf.name %}
+  ip address {{ ip.address.split('/')[0] }} {{ ip.address | ansible.utils.ipaddr('netmask') }}
+      {% endif %}
+    {% endfor %}
+  no shutdown
+!
+!
 {% if 'BDI' in intf["name"] %}
 interface {{ intf.name }}
+  {% if intf.description %}
+  description {{ intf.description }}
+  {% endif %}
+  ip vrf forwarding {{ intf.vrf['name'] }}
+  {% for ip in ip_addresses.json.results %}
+      {% if ip.assigned_object.name == intf.name %}
+  ip address {{ ip.address.split('/')[0] }} {{ ip.address | ansible.utils.ipaddr('netmask') }} 
+   {% endif %}
+    {% endfor %}
+  {% endif %}
+!
 {% endif %}
 {% endfor %}
-!
-!
 !
 router ospf 100
 {% for addr in ip_addresses.json.results %}

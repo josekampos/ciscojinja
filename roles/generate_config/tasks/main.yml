@@ -8,7 +8,7 @@
           accept: "application/json"
           Authorization: "Token {{ netbox_token }}"
   register: device
-  
+
 - name: 2 - Get Interfaces
   uri:
       url: "{{ netbox_url }}api/dcim/interfaces/?device={{ inventory_hostname }}&limit=0"
@@ -62,9 +62,18 @@
 
 # Uncomment for debugging the JSON Data registered by a play
 # Change the var value to whatever you need eg. var: ip_addresses.json.results
+
 - name: Display Json Data
   ansible.builtin.debug:
     var: interfaces.json.results
+
+- name: Display Json Data
+  ansible.builtin.debug:
+    var: ip_addresses.json.results
+
+- name: Display Json Data
+  ansible.builtin.debug:
+    var: vrfs.json.results
 
 # Uncomment to display the Ansible Host Vars for a host 
 #- name: Display all variables/facts known for a host
