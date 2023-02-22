@@ -1,0 +1,38 @@
+!
+logging buffered 50000
+enable secret 8 ############
+!
+aaa new-model
+!
+!
+aaa group server tacacs+ AUTH_TACACS
+ server-private 1.1.1.1 key 7 #######
+ server-private 2.2.2.2 key 7 #######
+ ip vrf forwarding XX
+ ip tacacs source-interface BDIXX
+!
+aaa authentication login LOGIN_AUTH local
+aaa authentication login CONSOLE local
+aaa authentication login VTY group AUTH_TACACS local
+aaa authentication enable default enable
+aaa authentication dot1x default group ISE
+aaa authorization console
+aaa authorization config-commands
+aaa authorization exec default local
+aaa authorization exec VTY group AUTH_TACACS local if-authenticated
+aaa authorization commands 1 VTY group AUTH_TACACS local if-authenticated
+aaa authorization commands 15 VTY group AUTH_TACACS local if-authenticated
+aaa authorization network default group ISE
+aaa accounting dot1x default start-stop group ISE
+aaa accounting exec default start-stop group AUTH_TACACS
+aaa accounting commands 1 default start-stop group AUTH_TACACS
+aaa accounting commands 15 default start-stop group AUTH_TACACS
+!
+!
+!
+!
+!
+aaa session-id common
+clock timezone PRT 0 0
+clock summer-time PT recurring last Sun Mar 1:00 last Sun Oct 2:00
+!
