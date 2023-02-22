@@ -61,23 +61,89 @@ interface {{ intf.name }}
       {% endif %}
     {% endfor %}
   no shutdown
+{% endif %}
+{% endfor %}
 !
 !
+{% for intf in interfaces.json.results %}
 {% if 'BDI' in intf["name"] %}
 interface {{ intf.name }}
   {% if intf.description %}
   description {{ intf.description }}
   {% endif %}
   ip vrf forwarding {{ intf.vrf['name'] }}
-  {% for ip in ip_addresses.json.results %}
+    {% for ip in ip_addresses.json.results %}
       {% if ip.assigned_object.name == intf.name %}
-  ip address {{ ip.address.split('/')[0] }} {{ ip.address | ansible.utils.ipaddr('netmask') }} 
-   {% endif %}
+  ip address {{ ip.address.split('/')[0] }} {{ ip.address | ansible.utils.ipaddr('netmask') }}
+  no ip redirects
+  no ip unreachables
+  no ip proxy-arpa
+  standby {% for vlan in intf.tagged_vlans %}{{ vlan.vid }}{% if not loop.last %}, {% endif %}{% endfor %} priority {{ device.json.results[0]['vc_priority'] }}
+  standby {% for vlan in intf.tagged_vlans %}{{ vlan.vid }}{% if not loop.last %}, {% endif %}{% endfor %} preempt delay minimum 70
+  standby {% for vlan in intf.tagged_vlans %}{{ vlan.vid }}{% if not loop.last %}, {% endif %}{% endfor %} authentication md5 key-chain hsrpREN
+  mpls propagate-cos
+      {% endif %}
     {% endfor %}
-  {% endif %}
+  no shutdown
 !
 {% endif %}
 {% endfor %}
+!
+!
+{% for intf in interfaces.json.results %}
+{% if 'GigabitEthernet0' in intf["name"] and not 'Ten' in intf["name"]  %}
+interface {{ intf.name }}
+  {% if intf.description %}
+  description {{ intf.description }}
+  {% endif %}
+  no ip address
+  load-interval 30
+  negotiation auto
+  cdp enable
+  mpls propagate-cos
+  service instance trunk 1 ethernet
+   encapsulation dot1q {% for vlan in intf.tagged_vlans %}{{ vlan.vid }}{% if not loop.last %}, {% endif %}{% endfor %}
+   rewrite ingress tag pop 1 symmetric
+   l2protocol peer stp
+  bridge-domain from-encapsulation
+ !
+ service instance 1024 ethernet
+  encapsulation untagged
+  l2protocol peer cdp stp udld
+  bridge-domain 1024
+ !
+!
+  {% endif %}
+{% endfor %}
+!
+!
+!
+{% for intf in interfaces.json.results %}
+{% if 'Te' in intf["name"] %}
+interface {{ intf.name }}
+  {% if intf.description %}
+  description {{ intf.description }}
+  mtu {{ intf.mtu }}
+  {% endif %}
+    {% for ip in ip_addresses.json.results %}
+      {% if ip.assigned_object.name == intf.name %}
+  ip address {{ ip.address.split('/')[0] }} {{ ip.address | ansible.utils.ipaddr('netmask') }}
+  ip ospf authentication message-digest
+  ip ospf message-digest-key 1 md5 7 105C1A0A5718011B0A
+  ip ospf network point-to-point
+  ip ospf cost 500
+  load-interval 30
+  cdp enable
+  mpls propagate-cos
+  mpls ip
+  service-policy output SHAPE_48
+      {% endif %}
+    {% endfor %}
+  no shutdown
+!
+{% endif %}
+{% endfor %}
+!
 !
 router ospf 100
 {% for addr in ip_addresses.json.results %}
@@ -88,11 +154,14 @@ router-id {{ addr.address.split('/')[0] }}
  auto-cost reference-bandwidth 10000
  area {{ site.json.results[0]['custom_fields']['OSPF_AREA_ID'] }} authentication message-digest
  redistribute connected subnets
- passive-interface Loopback1
+ passive-interface Loopback
+ {% if interfaces.json.results[0]['custom_fields']['RUN_OSPF'] != True %}
  network 10.0.0.120 0.0.0.0 area {{ site.json.results[0]['custom_fields']['OSPF_AREA_ID'] }}
  network 10.0.4.126 0.0.0.0 area {{ site.json.results[0]['custom_fields']['OSPF_AREA_ID'] }}
  network 10.0.4.129 0.0.0.0 area {{ site.json.results[0]['custom_fields']['OSPF_AREA_ID'] }}
  mpls ldp sync
+!
+{% endif %}
 !
 router bgp {{ site.json.results[0]['asns'][0]['asn'] }}
  bgp log-neighbor-changes
