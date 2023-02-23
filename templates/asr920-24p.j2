@@ -55,6 +55,9 @@ interface {{ intf.name }}
   {% if intf.description %}
   description {{ intf.description }}
   {% endif %}
+  {% if intf.vrf %}
+  ip vrf forwarding {{ intf.vrf['name'] }}
+  {% endif %}
     {% for ip in ip_addresses.json.results %}
       {% if ip.assigned_object.name == intf.name %}
   ip address {{ ip.address.split('/')[0] }} {{ ip.address | ansible.utils.ipaddr('netmask') }}
@@ -71,7 +74,9 @@ interface {{ intf.name }}
   {% if intf.description %}
   description {{ intf.description }}
   {% endif %}
+  {% if intf.vrf %}
   ip vrf forwarding {{ intf.vrf['name'] }}
+  {% endif %}
     {% for ip in ip_addresses.json.results %}
       {% if ip.assigned_object.name == intf.name %}
   ip address {{ ip.address.split('/')[0] }} {{ ip.address | ansible.utils.ipaddr('netmask') }}
@@ -91,7 +96,7 @@ interface {{ intf.name }}
 !
 !
 {% for intf in interfaces.json.results %}
-{% if 'GigabitEthernet0' in intf["name"] and not 'Ten' in intf["name"]  %}
+{% if 'GigabitEthernet' in intf["name"] and not 'Ten' in intf["name"]  %}
 interface {{ intf.name }}
   {% if intf.description %}
   description {{ intf.description }}
@@ -119,7 +124,7 @@ interface {{ intf.name }}
 !
 !
 {% for intf in interfaces.json.results %}
-{% if 'Te' in intf["name"] %}
+{% if 'Ten' in intf["name"] %}
 interface {{ intf.name }}
   {% if intf.description %}
   description {{ intf.description }}
@@ -154,14 +159,14 @@ router-id {{ addr.address.split('/')[0] }}
  auto-cost reference-bandwidth 10000
  area {{ site.json.results[0]['custom_fields']['OSPF_AREA_ID'] }} authentication message-digest
  redistribute connected subnets
- passive-interface Loopback
- {% if interfaces.json.results[0]['custom_fields']['RUN_OSPF'] != True %}
- network 10.0.0.120 0.0.0.0 area {{ site.json.results[0]['custom_fields']['OSPF_AREA_ID'] }}
- network 10.0.4.126 0.0.0.0 area {{ site.json.results[0]['custom_fields']['OSPF_AREA_ID'] }}
- network 10.0.4.129 0.0.0.0 area {{ site.json.results[0]['custom_fields']['OSPF_AREA_ID'] }}
+ passive-interface Loopback1
+ {% for addr in ip_addresses.json.results %}
+  {% for intf in interfaces.json.results if intf['custom_fields']['RUN_OSPF']|lower == "on"  %}
+ network {{ addr.address.split('/')[0] }} 0.0.0.0 area {{ site.json.results[0]['custom_fields']['OSPF_AREA_ID'] }}
+  {% endfor %}
+ {% endfor %}
  mpls ldp sync
 !
-{% endif %}
 !
 router bgp {{ site.json.results[0]['asns'][0]['asn'] }}
  bgp log-neighbor-changes
